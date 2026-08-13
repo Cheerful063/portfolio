@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="帝可得 — IoT智能售货机后台管理平台，基于若依二次开发，覆盖点位、设备、订单、工单全业务闭环">
+    <meta name="keywords" content="帝可得,智能售货机,IoT,若依,RuoYi,MyBatis-Plus,后台管理,SpringBoot">
+    <meta property="og:title" content="帝可得 | 智能售货机管理系统">
+    <meta property="og:description" content="IoT智能售货机后台管理平台，覆盖全业务闭环">
+    <meta property="og:type" content="website">
+    <title>帝可得 | 智能售货机管理系统</title>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#009688',
+                        dark: '#1D2129',
+                        graySoft: '#F2F3F5'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --primary: #009688; }
+        html { scroll-behavior: smooth; }
+        section[id] { scroll-margin-top: 70px; }
+
+        .text-shadow { text-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(0, 150, 136, 0.12); }
+
+        /* 汉堡菜单 */
+        .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+        .hamburger span { display: block; width: 24px; height: 3px; background: var(--primary); border-radius: 3px; transition: 0.3s; }
+        .hamburger.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* 滚动渐入 */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.reveal-active { opacity: 1; transform: translateY(0); }
+
+        /* 导航高亮 */
+        .nav-active { color: var(--primary) !important; font-weight: 600; }
+
+        /* 导航滚动加深 */
+        nav { transition: box-shadow 0.3s ease; }
+        nav.nav-scrolled { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
+        /* 回到顶部 */
+        #backToTop {
+            position: fixed; bottom: 30px; right: 30px; width: 46px; height: 46px;
+            background: var(--primary); color: #fff; border: none; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease; z-index: 40;
+        }
+        #backToTop:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+        /* Focus */
+        a:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 4px; }
+
+        @media (max-width: 767px) {
+            .hamburger { display: flex; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; }
+            *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body class="bg-graySoft text-dark font-sans">
+<!--导航栏-->
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+        <a href="index.html" class="text-xl font-bold text-primary no-underline">
+            <i class="fa fa-cube mr-2"></i>帝可得 智能售货机管理系统
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="hidden sm:inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition no-underline">
+                <i class="fa fa-arrow-left"></i>返回首页
+            </a>
+            <div class="hidden md:flex gap-6 text-sm">
+                <a href="#intro" class="nav-link hover:text-primary transition no-underline">项目简介</a>
+                <a href="#feature" class="nav-link hover:text-primary transition no-underline">核心功能</a>
+                <a href="#tech" class="nav-link hover:text-primary transition no-underline">技术栈</a>
+                <a href="#advantage" class="nav-link hover:text-primary transition no-underline">项目亮点</a>
+            </div>
+            <button class="hamburger md:hidden" id="hamburger" aria-label="菜单">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+    <!-- 移动端菜单 -->
+    <div class="md:hidden hidden" id="mobileMenu">
+        <a href="index.html" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">返回首页</a>
+        <a href="#intro" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">项目简介</a>
+        <a href="#feature" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">核心功能</a>
+        <a href="#tech" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">技术栈</a>
+        <a href="#advantage" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">项目亮点</a>
+    </div>
+</nav>
+
+<!--头部横幅-->
+<section class="bg-gradient-to-br from-primary to-[#4db6ac] text-white py-20 px-4">
+    <div class="max-w-6xl mx-auto text-center">
+        <h1 class="text-[clamp(2rem,5vw,3.2rem)] font-bold mb-4 text-shadow">帝可得</h1>
+        <p class="text-[clamp(1rem,2vw,1.25rem)] opacity-90 max-w-3xl mx-auto">
+            IoT智能售货机后台管理平台，基于若依二次开发，覆盖点位、设备、订单、工单全业务闭环。
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">SpringBoot</span>
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">RuoYi若依</span>
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">MyBatis-Plus</span>
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">IoT设备对接</span>
+        </div>
+    </div>
+</section>
+
+<main class="max-w-6xl mx-auto px-4 py-14">
+    <!--项目简介-->
+    <section id="intro" class="mb-16 reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">项目简介</h2>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <p class="text-gray-700 leading-relaxed">
+                帝可得是面向自动售货机运营商的物联网后台管理系统，基于若依框架二次开发，实现点位管理、设备管控、商品库存、合作商、运维工单、订单交易、策略配置完整业务闭环。对接售货机IoT设备，完成设备状态上报、库存预警、补货工单自动生成、微信支付宝支付，模拟真实物联网项目开发流程，学习权限、分布式锁、接口幂等、业务工单流程等企业级开发能力。
+            </p>
+        </div>
+    </section>
+
+    <!--核心功能-->
+    <section id="feature" class="mb-16 reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">核心功能</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-map-marker text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">点位&合作商管理</h3>
+                <p class="text-gray-600 text-sm">区域点位维护，合作商信息管理，统计点位设备数量</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-desktop text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">设备管理</h3>
+                <p class="text-gray-600 text-sm">售货机设备接入，设备状态监控、投放、撤机管理</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-shopping-bag text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">商品与库存</h3>
+                <p class="text-gray-600 text-sm">商品维护，设备库存管理，库存不足自动预警</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-tasks text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">运维工单</h3>
+                <p class="text-gray-600 text-sm">补货、维修工单创建派发，接单、完成、拒绝全流程</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-credit-card text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">订单&支付</h3>
+                <p class="text-gray-600 text-sm">用户扫码下单，微信、支付宝支付，订单统计查询</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-user-secret text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">权限人员管理</h3>
+                <p class="text-gray-600 text-sm">角色权限，运维人员账号，密码重置，数据权限控制</p>
+            </div>
+        </div>
+    </section>
+
+    <!--技术栈-->
+    <section id="tech" class="mb-16 reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">技术栈</h2>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <div class="flex flex-wrap gap-3">
+                <span class="bg-graySoft px-4 py-2 rounded-md">Java</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">SpringBoot</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">MyBatis-Plus</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">RuoYi若依</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">MySQL</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Redis</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Vue2</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Knife4j</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">微信/支付宝支付</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">IoT设备对接</span>
+            </div>
+        </div>
+    </section>
+
+    <!--项目亮点-->
+    <section id="advantage" class="reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">项目亮点</h2>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>基于若依快速开发平台二次开发，理解企业后台权限体系</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>完整工单业务流程，状态流转，防止重复接单并发问题</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>接入第三方支付，理解支付回调、订单状态处理逻辑</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>模拟物联网设备上报，设备、库存、订单业务联动</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>MyBatis-Plus快速CRUD，代码生成器，简化重复开发</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>真实商用业务场景，适合简历中企业后台/IoT项目展示</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+</main>
+
+<!-- 回到顶部 -->
+<button id="backToTop" class="opacity-0 invisible pointer-events-none" aria-label="回到顶部">
+    <i class="fa fa-arrow-up"></i>
+</button>
+
+<footer class="bg-dark text-white py-8 mt-12">
+    <div class="max-w-6xl mx-auto px-4 text-center text-sm opacity-75">
+        <p>帝可得 | 智能售货机IoT管理实战项目</p>
+        <a href="index.html" class="inline-block mt-2 text-primary hover:underline">← 返回首页 </a>
+    </div>
+</footer>
+
+<script src="project.js" defer></script>
+</body>
+</html>

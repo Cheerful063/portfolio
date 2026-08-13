@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="黑马点评 — 基于Redis的探店点评社交后端项目，解决缓存、秒杀、分布式锁等高并发业务场景">
+    <meta name="keywords" content="黑马点评,Redis,高并发,秒杀,分布式锁,Lua,探店点评,SpringBoot">
+    <meta property="og:title" content="黑马点评 | 项目介绍">
+    <meta property="og:description" content="Redis高并发实战项目，探店点评社交平台">
+    <meta property="og:type" content="website">
+    <title>黑马点评 | 项目介绍</title>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#E64398',
+                        dark: '#1D2129',
+                        graySoft: '#F2F3F5'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --primary: #E64398; }
+        html { scroll-behavior: smooth; }
+        section[id] { scroll-margin-top: 70px; }
+
+        .text-shadow { text-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(230, 67, 152, 0.12); }
+
+        /* 汉堡菜单 */
+        .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+        .hamburger span { display: block; width: 24px; height: 3px; background: var(--primary); border-radius: 3px; transition: 0.3s; }
+        .hamburger.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* 滚动渐入 */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.reveal-active { opacity: 1; transform: translateY(0); }
+
+        /* 导航高亮 */
+        .nav-active { color: var(--primary) !important; font-weight: 600; }
+
+        /* 导航滚动加深 */
+        nav { transition: box-shadow 0.3s ease; }
+        nav.nav-scrolled { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
+        /* 回到顶部 */
+        #backToTop {
+            position: fixed; bottom: 30px; right: 30px; width: 46px; height: 46px;
+            background: var(--primary); color: #fff; border: none; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease; z-index: 40;
+        }
+        #backToTop:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+        /* Focus */
+        a:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 4px; }
+
+        @media (max-width: 767px) {
+            .hamburger { display: flex; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; }
+            *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body class="bg-graySoft text-dark font-sans">
+<!--导航栏-->
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+        <a href="index.html" class="text-xl font-bold text-primary no-underline">
+            <i class="fa fa-map-marker mr-2"></i>黑马点评
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="hidden sm:inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition no-underline">
+                <i class="fa fa-arrow-left"></i>返回首页
+            </a>
+            <div class="hidden md:flex gap-6 text-sm">
+                <a href="#intro" class="nav-link hover:text-primary transition no-underline">项目简介</a>
+                <a href="#feature" class="nav-link hover:text-primary transition no-underline">核心功能</a>
+                <a href="#tech" class="nav-link hover:text-primary transition no-underline">技术栈</a>
+                <a href="#advantage" class="nav-link hover:text-primary transition no-underline">项目亮点</a>
+            </div>
+            <button class="hamburger md:hidden" id="hamburger" aria-label="菜单">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+    <!-- 移动端菜单 -->
+    <div class="md:hidden hidden" id="mobileMenu">
+        <a href="index.html" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">返回首页</a>
+        <a href="#intro" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">项目简介</a>
+        <a href="#feature" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">核心功能</a>
+        <a href="#tech" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">技术栈</a>
+        <a href="#advantage" class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary border-t no-underline">项目亮点</a>
+    </div>
+</nav>
+
+<!--头部横幅-->
+<section class="bg-gradient-to-br from-primary to-[#ff70ad] text-white py-20 px-4">
+    <div class="max-w-6xl mx-auto text-center">
+        <h1 class="text-[clamp(2rem,5vw,3.2rem)] font-bold mb-4 text-shadow">黑马点评</h1>
+        <p class="text-[clamp(1rem,2vw,1.25rem)] opacity-90 max-w-3xl mx-auto">
+            Redis高并发实战项目，探店点评社交平台，解决缓存、秒杀、分布式业务场景。
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">SpringBoot</span>
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">Redis</span>
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">Lua脚本</span>
+            <span class="px-3 py-1 rounded-full bg-white/20 text-sm">高并发</span>
+        </div>
+    </div>
+</section>
+
+<main class="max-w-6xl mx-auto px-4 py-14">
+    <!--项目简介-->
+    <section id="intro" class="mb-16 reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">项目简介</h2>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <p class="text-gray-700 leading-relaxed">
+                黑马点评是基于Redis实现的探店点评社交后端项目，模拟大众点评业务。实现商户查询、用户登录、探店笔记、点赞收藏、关注粉丝、优惠券秒杀等模块。重点练习缓存穿透、缓存击穿、缓存雪崩、分布式锁、Lua脚本、Stream消息队列等高并发场景解决方案，是Java后端Redis经典实战项目。
+            </p>
+        </div>
+    </section>
+
+    <!--核心功能-->
+    <section id="feature" class="mb-16 reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">核心功能</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-mobile text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">短信登录</h3>
+                <p class="text-gray-600 text-sm">手机号验证码登录，Redis维护登录状态</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-store text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">商户查询</h3>
+                <p class="text-gray-600 text-sm">商户缓存，分类搜索，距离排序</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-heart text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">点赞收藏</h3>
+                <p class="text-gray-600 text-sm">笔记点赞、收藏、点赞排行榜</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-user-plus text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">关注粉丝</h3>
+                <p class="text-gray-600 text-sm">用户关注，关注推送，粉丝列表</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-bolt text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">优惠券秒杀</h3>
+                <p class="text-gray-600 text-sm">秒杀扣库存，一人一单，分布式锁</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm card-hover">
+                <i class="fa fa-file-text-o text-primary text-2xl mb-3"></i>
+                <h3 class="font-semibold text-lg mb-2">探店笔记</h3>
+                <p class="text-gray-600 text-sm">发布笔记，图片上传，滚动分页</p>
+            </div>
+        </div>
+    </section>
+
+    <!--技术栈-->
+    <section id="tech" class="mb-16 reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">技术栈</h2>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <div class="flex flex-wrap gap-3">
+                <span class="bg-graySoft px-4 py-2 rounded-md">Java</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">SpringBoot</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">MyBatis</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">MySQL</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Redis</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Lua脚本</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Redis Stream</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Redisson</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Maven</span>
+                <span class="bg-graySoft px-4 py-2 rounded-md">Vue</span>
+            </div>
+        </div>
+    </section>
+
+    <!--项目亮点-->
+    <section id="advantage" class="reveal">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3">项目亮点</h2>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>处理缓存穿透、缓存击穿、缓存雪崩三大缓存问题</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>Redisson实现分布式锁，解决超卖、一人一单并发问题</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>Lua脚本保证多条Redis命令原子执行</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>Redis Stream实现消息队列，异步处理秒杀订单</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>Geo地理位置实现附近商户查询，ZSet实现点赞排行榜</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>基于Redis实现登录会话，滚动分页优化大列表查询</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+</main>
+
+<!-- 回到顶部 -->
+<button id="backToTop" class="opacity-0 invisible pointer-events-none" aria-label="回到顶部">
+    <i class="fa fa-arrow-up"></i>
+</button>
+
+<footer class="bg-dark text-white py-8 mt-12">
+    <div class="max-w-6xl mx-auto px-4 text-center text-sm opacity-75">
+        <p>黑马点评 | Redis高并发实战项目</p>
+        <a href="index.html" class="inline-block mt-2 text-primary hover:underline">← 返回首页 </a>
+    </div>
+</footer>
+
+<script src="project.js" defer></script>
+</body>
+</html>

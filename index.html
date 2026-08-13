@@ -1,18 +1,161 @@
 <!DOCTYPE html>
-<html lang="zh‑CN">
+<html lang="zh-CN">
+
 <head>
-  <meta charset="UTF‑8">
-  <title>我的个人主页</title>
-  <style>
-    body {font-family:system-ui;margin:40px;max‑width:800px;}
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MY.PROFILE — 个人作品集官网，专注网页开发、Java开发、视觉设计与创意策划，探索·创造·成长">
+  <meta name="keywords" content="个人官网,作品集,网页开发,Java开发,视觉设计,创意策划">
+  <meta name="author" content="MY.PROFILE">
+  <meta property="og:title" content="MY.PROFILE | 探索 · 创造 · 成长">
+  <meta property="og:description" content="专注创新设计与技术实现，用热爱创造无限可能">
+  <meta property="og:type" content="website">
+  <title>MY.PROFILE | 探索 · 创造 · 成长</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <h1>你好，我是XXX</h1>
-  <p>软件技术｜Java后端开发</p>
-  <h2>项目作品集</h2>
-  <ul>
-    <li><a href="https://github.com/Cheerful063">Github</a></li>
-  </ul>
+  <nav id="navbar">
+    <div class="logo">MY.PROFILE</div>
+    <div class="nav-links" id="navLinks">
+      <a href="#home" class="nav-link active">首页</a>
+      <a href="#about" class="nav-link">关于我</a>
+      <a href="#works" class="nav-link">作品项目</a>
+      <a href="#contact" class="nav-link">联系我</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="overlay"></div>
+    <div class="hero-content reveal">
+      <h1>探索 · 创造 · 成长</h1>
+      <p>专注创新设计与技术实现，以专业态度打磨每一份作品，用热爱创造无限可能，期待与你携手同行</p>
+      <a href="#contact" class="contact-btn">立即沟通 ｜ 建立合作</a>
+    </div>
+    <div class="scroll-hint">
+      <span></span>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="container">
+      <div class="section-title reveal">
+        <h2>关于我</h2>
+        <p>热爱专注 · 持续精进 · 深耕所爱</p>
+      </div>
+      <div class="about-wrap">
+        <div class="about-text reveal">
+          <h3>专注细节，追求极致的创作者</h3>
+          <p>我是一名专注个人创作与项目落地的创作者，始终保持学习与创新的心态，深耕视觉设计、网页开发与创意策划领域。擅长用简洁高级的视觉语言、流畅的交互体验，打造兼具颜值与实用性的作品。</p>
+          <p>日常坚持打磨作品、积累经验，注重每一处细节的优化，拒绝敷衍与同质化创作。无论是个人展示、商业项目还是创意设计，都能以专业的视角完成落地，用实力呈现优质成果。</p>
+          <div class="about-skills">
+            <span class="skill-tag">网页开发</span>
+            <span class="skill-tag">Java开发</span>
+            <span class="skill-tag">视觉设计</span>
+            <span class="skill-tag">创意策划</span>
+            <span class="skill-tag">项目落地</span>
+          </div>
+        </div>
+        <div class="about-text reveal">
+          <h3>个人理念</h3>
+          <p>深耕不辍，行稳致远。始终相信，优质的作品，源于极致的细节把控与持之以恒的打磨。不盲从潮流，专注自我提升，用专业、耐心与热爱，交付每一份满意的答卷。</p>
+          <p>开放合作，乐于沟通，欢迎各类创意合作、项目交流、技术探讨，期待与志同道合的你相遇。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="works" id="works">
+    <div class="container">
+      <div class="section-title reveal">
+        <h2>作品项目</h2>
+        <p>精选个人优质作品，记录每一次成长与突破</p>
+      </div>
+      <div class="works-grid">
+        <div class="work-card reveal">
+          <a href="tlias.html" class="work-link">
+            <div class="work-img"><img src="images/tlias.jpg" alt="tlias智能学习辅助系统" loading="lazy"></div>
+            <div class="work-info">
+              <h4>tlias 智能学习辅助系统</h4>
+              <p>前后端分离教育管理后台，集成登录鉴权、部门班级员工管理、分页条件查询、数据统计分析，接口规范清晰，页面交互简洁流畅。</p>
+              <span class="work-tag">Java开发</span>
+              <span class="work-tag">SpringBoot</span>
+              <span class="work-tag">JWT</span>
+              <span class="work-tag">网页开发</span>
+            </div>
+          </a>
+        </div>
+        <div class="work-card reveal">
+          <a href="hmdp.html" class="work-link">
+            <div class="work-img"><img src="images/hmdp.jpg" alt="黑马点评项目" loading="lazy"></div>
+            <div class="work-info">
+              <h4>黑马点评</h4>
+              <p>基于Redis实现的点评探店后端项目，集成商户查询缓存、优惠券秒杀、用户签到、好友探店推送、分布式锁，接口性能优异，高并发场景适配。</p>
+              <span class="work-tag">MyBatis</span>
+              <span class="work-tag">Redis</span>
+              <span class="work-tag">分布式锁</span>
+              <span class="work-tag">秒杀业务</span>
+            </div>
+          </a>
+        </div>
+        <div class="work-card reveal">
+          <a href="dkd.html" class="work-link">
+            <div class="work-img"><img src="images/dkd_new.jpg" alt="帝可得智能售货机管理系统" loading="lazy"></div>
+            <div class="work-info">
+              <h4>帝可得（若依）</h4>
+              <p>物联网智能售货机运营管理系统，集成设备点位管控、工单运维调度、订单商品管理、数据可视化统计，设备状态实时监控，业务闭环完整，后台交互简洁高效。</p>
+              <span class="work-tag">若依框架</span>
+              <span class="work-tag">业务后台</span>
+              <span class="work-tag">交互开发</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="section-title reveal">
+        <h2>联系我</h2>
+        <p>有项目合作、创意交流、技术咨询，欢迎随时留言</p>
+      </div>
+
+      <div class="contact-wrap">
+        <div class="contact-info reveal">
+          <h3>开启沟通与合作</h3>
+          <p>无论你是想咨询项目合作、定制开发，还是单纯交流学习，我都会尽快回复，期待与你相遇。</p>
+        </div>
+        <div class="contact-right reveal">
+          <a href="mailto:3277937927@qq.com" class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>邮箱：3277937927@qq.com</span>
+          </a>
+          <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>所在地：中国</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <button id="backToTop" aria-label="回到顶部">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <footer>
+    <p>© <span id="year"></span> MY.PROFILE 个人官网 版权所有 | 用心创作，不负热爱 </p>
+  </footer>
+
+  <script src="main.js" defer></script>
 </body>
+
 </html>
